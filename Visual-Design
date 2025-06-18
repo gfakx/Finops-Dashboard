@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Cloud FinOps Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .period-selector {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 500;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid;
+            transition: transform 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kpi-card.total-cost { border-left-color: #3498db; }
+        .kpi-card.savings { border-left-color: #27ae60; }
+        .kpi-card.efficiency { border-left-color: #f39c12; }
+        
+        .kpi-title {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .kpi-change {
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .kpi-change.positive { color: #27ae60; }
+        .kpi-change.negative { color: #e74c3c; }
+        
+        .chart-section {
+            grid-column: 1 / -1;
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            margin-top: 20px;
+        }
+        
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.3rem;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .chart-filters {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #ecf0f1;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .mock-chart {
+            height: 300px;
+            background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f8f9fa 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 2px dashed #bdc3c7;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .breakdown-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .breakdown-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .breakdown-title {
+            font-size: 1.2rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .breakdown-label {
+            font-weight: 500;
+            color: #34495e;
+        }
+        
+        .breakdown-value {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .environment-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .env-card {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .env-card.azure {
+            background: linear-gradient(135deg, #00b894, #00a085);
+        }
+        
+        .env-name {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            opacity: 0.9;
+        }
+        
+        .env-cost {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .env-accounts {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            opacity: 0.8;
+        }
+        
+        .update-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .update-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .last-update {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Executive Cloud Financial Dashboard</h1>
+            <div class="subtitle">Multi-Cloud Cost Management & Optimization Insights</div>
+            <div class="period-selector">📅 Current Period: June 2025</div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <!-- KPI Cards -->
+            <div class="kpi-card total-cost">
+                <div class="kpi-title">Total Monthly Cost</div>
+                <div class="kpi-value">$2.4M</div>
+                <div class="kpi-change positive">↗ 5.2% vs last month</div>
+            </div>
+            
+            <div class="kpi-card savings">
+                <div class="kpi-title">Total Savings</div>
+                <div class="kpi-value">$425K</div>
+                <div class="kpi-change positive">↗ 12.3% savings rate</div>
+            </div>
+            
+            <div class="kpi-card efficiency">
+                <div class="kpi-title">Cost Efficiency</div>
+                <div class="kpi-value">87%</div>
+                <div class="kpi-change positive">↗ 3.1% improvement</div>
+            </div>
+        </div>
+        
+        <!-- Environment Overview -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Environment Breakdown</div>
+            </div>
+            <div class="environment-grid">
+                <div class="env-card">
+                    <div class="env-name">AWS Landing Zone</div>
+                    <div class="env-cost">$650K</div>
+                    <div class="env-accounts">45 accounts</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-name">AWS ASEA</div>
+                    <div class="env-cost">$820K</div>
+                    <div class="env-accounts">78 accounts</div>
+                </div>
+                <div class="env-card">
+                    <div class="env-name">AWS LZA</div>
+                    <div class="env-cost">$340K</div>
+                    <div class="env-accounts">32 accounts</div>
+                </div>
+                <div class="env-card azure">
+                    <div class="env-name">Azure Corporate</div>
+                    <div class="env-cost">$480K</div>
+                    <div class="env-accounts">25 subscriptions</div>
+                </div>
+                <div class="env-card azure">
+                    <div class="env-name">Azure DPM</div>
+                    <div class="env-cost">$110K</div>
+                    <div class="env-accounts">10 subscriptions</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Cost Trend Chart -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <div class="chart-title">Monthly Cost Trends</div>
+                <div class="chart-filters">
+                    <button class="filter-btn active">12 Months</button>
+                    <button class="filter-btn">6 Months</button>
+                    <button class="filter-btn">3 Months</button>
+                </div>
+            </div>
+            <div class="mock-chart">
+                📊 Interactive Trend Chart (Excel Chart will be embedded here)
+            </div>
+        </div>
+        
+        <!-- Breakdown Sections -->
+        <div class="breakdown-section">
+            <div class="breakdown-card">
+                <div class="breakdown-title">Cost Structure Breakdown</div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Gross Cost</div>
+                    <div class="breakdown-value">$2,640K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Enterprise Discounts</div>
+                    <div class="breakdown-value">-$180K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Savings Plans</div>
+                    <div class="breakdown-value">-$145K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Bundle Discounts</div>
+                    <div class="breakdown-value">-$75K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Prepaid Commitments</div>
+                    <div class="breakdown-value">-$25K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label"><strong>Net Cost</strong></div>
+                    <div class="breakdown-value"><strong>$2,215K</strong></div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">SSC Fee (10% of Gross)</div>
+                    <div class="breakdown-value">+$264K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label"><strong>Total Cost</strong></div>
+                    <div class="breakdown-value"><strong>$2,479K</strong></div>
+                </div>
+            </div>
+            
+            <div class="breakdown-card">
+                <div class="breakdown-title">Savings Optimization</div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Savings Plan Utilization</div>
+                    <div class="breakdown-value">92%</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Reserved Instances</div>
+                    <div class="breakdown-value">78%</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Spot Instance Usage</div>
+                    <div class="breakdown-value">15%</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Right Size Opportunities</div>
+                    <div class="breakdown-value">$45K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label">Unused Resources</div>
+                    <div class="breakdown-value">$12K</div>
+                </div>
+                <div class="breakdown-item">
+                    <div class="breakdown-label"><strong>Potential Savings</strong></div>
+                    <div class="breakdown-value"><strong>$57K</strong></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="update-section">
+            <div class="update-title">💡 Dashboard Update Process</div>
+            <div class="last-update">Last Updated: June 15, 2025 | Next Update: July 15, 2025</div>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: #7f8c8d;">
+                Monthly data entry required: Invoice totals, discount amounts, and account counts. All calculations and visualizations update automatically.
+            </div>
+        </div>
+    </div>
+</body>
+</html>
