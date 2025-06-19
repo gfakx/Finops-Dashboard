@@ -503,14 +503,25 @@ End Sub
 Sub Refresh_Dashboard()
     Application.ScreenUpdating = False
     
+    ' Get reference to dashboard sheet
+    Dim ws As Worksheet
+    On Error Resume Next
+    Set ws = Worksheets("Executive_Dashboard")
+    On Error GoTo 0
+    
+    If ws Is Nothing Then
+        MsgBox "Executive_Dashboard sheet not found. Please run Create_Executive_Dashboard first.", vbCritical
+        Exit Sub
+    End If
+    
     ' Refresh all pivot tables
     Dim pt As PivotTable
-    For Each pt In DashSheet.PivotTables
+    For Each pt In ws.PivotTables
         pt.RefreshTable
     Next pt
     
     ' Update last modified
-    DashSheet.Range("C3").Value = Now()
+    ws.Range("C3").Value = Now()
     
     Application.ScreenUpdating = True
     
