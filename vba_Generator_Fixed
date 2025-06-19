@@ -250,7 +250,6 @@ Sub Create_Environment_Breakdown_Pivot()
     Dim pt As PivotTable
     Dim pc As PivotCache
     Dim ws As Worksheet
-    Dim cf As CalculatedField
     
     Set ws = Worksheets.Add
     ws.Name = "Temp_Environment"
@@ -271,14 +270,9 @@ Sub Create_Environment_Breakdown_Pivot()
         .PivotFields("SSC").Orientation = xlDataField
         
         ' Add calculated fields
-        Set cf = .CalculatedFields.Add("Total_Cost", "=Net_C+SSC")
-        cf.Orientation = xlDataField
-        
-        Set cf = .CalculatedFields.Add("Total_Savings", "=ABS(Savings_Plan_C+Bundle_Discount_C+Enterprise_Discount_C)")
-        cf.Orientation = xlDataField
-        
-        Set cf = .CalculatedFields.Add("Savings_Rate", "=Total_Savings/Gross_C")
-        cf.Orientation = xlDataField
+        .CalculatedFields.Add("Total_Cost", "=Net_C+SSC").Orientation = xlDataField
+        .CalculatedFields.Add("Total_Savings", "=ABS(Savings_Plan_C+Bundle_Discount_C+Enterprise_Discount_C)").Orientation = xlDataField
+        .CalculatedFields.Add("Savings_Rate", "=Total_Savings/Gross_C").Orientation = xlDataField
         
         ' Rename fields
         .DataFields("Sum of Gross_C").Caption = "Gross Cost"
