@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Cloud FinOps Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            color: white;
+            padding: 20px 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        .header .fy-info {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .header .last-updated {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .controls {
+            background: #f8fafc;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group label {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .control-group select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .refresh-btn {
+            background: #059669;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-left: auto;
+        }
+        
+        .refresh-btn:hover {
+            background: #047857;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .summary-section {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #3b82f6;
+            padding-bottom: 8px;
+        }
+        
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .metric-row:last-child {
+            border-bottom: none;
+            font-weight: 600;
+            background: #eff6ff;
+            margin: 10px -10px -10px -10px;
+            padding: 15px 10px;
+            border-radius: 6px;
+        }
+        
+        .metric-label {
+            color: #374151;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            color: #1f2937;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .metric-value.positive {
+            color: #059669;
+        }
+        
+        .metric-value.negative {
+            color: #dc2626;
+        }
+        
+        .prepaid-section {
+            background: linear-gradient(135deg, #fef3c7, #fbbf24);
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .prepaid-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .prepaid-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .prepaid-metric {
+            text-align: center;
+            background: rgba(255,255,255,0.7);
+            padding: 15px;
+            border-radius: 6px;
+        }
+        
+        .prepaid-metric .label {
+            font-size: 0.9rem;
+            color: #92400e;
+            margin-bottom: 8px;
+        }
+        
+        .prepaid-metric .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #78350f;
+        }
+        
+        .environment-section {
+            margin-bottom: 30px;
+        }
+        
+        .env-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .env-table th {
+            background: #f3f4f6;
+            color: #374151;
+            font-weight: 600;
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .env-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .env-table tbody tr:hover {
+            background: #f9fafb;
+        }
+        
+        .env-table tbody tr:last-child td {
+            border-bottom: none;
+            font-weight: 600;
+            background: #eff6ff;
+        }
+        
+        .env-aws {
+            color: #ff9900;
+            font-weight: 600;
+        }
+        
+        .env-azure {
+            color: #0078d4;
+            font-weight: 600;
+        }
+        
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .chart-container {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(45deg, #f8fafc 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f8fafc 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f8fafc 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f8fafc 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            border: 2px dashed #cbd5e1;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-weight: 500;
+        }
+        
+        .mom-analysis {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .mom-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 15px;
+        }
+        
+        .mom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .mom-metric {
+            text-align: center;
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dcfce7;
+        }
+        
+        .mom-metric .label {
+            font-size: 0.9rem;
+            color: #166534;
+            margin-bottom: 8px;
+        }
+        
+        .mom-metric .value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #15803d;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>Executive Cloud Financial Dashboard</h1>
+            <div class="fy-info">Financial Year: Apr-2025 to Mar-2026</div>
+            <div class="last-updated">Last Updated: June 19, 2025 - 2:30 PM</div>
+        </div>
+        
+        <div class="controls">
+            <div class="control-group">
+                <label>Select Month:</label>
+                <select>
+                    <option>May-2025</option>
+                    <option>Apr-2025</option>
+                    <option>All Months</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label>View Type:</label>
+                <select>
+                    <option>Current Month</option>
+                    <option>YTD Summary</option>
+                    <option>Comparison</option>
+                </select>
+            </div>
+            <button class="refresh-btn">🔄 Refresh Dashboard</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="summary-grid">
+                <div class="summary-section">
+                    <div class="section-title">Financial Year Summary (YTD)</div>
+                    <div class="metric-row">
+                        <div class="metric-label">Total Gross Cost</div>
+                        <div class="metric-value">$1,247,832</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Total Savings</div>
+                        <div class="metric-value positive">$237,847</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Total Net Cost</div>
+                        <div class="metric-value">$1,009,985</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Total SSC Fees</div>
+                        <div class="metric-value">$124,783</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Total Final Cost</div>
+                        <div class="metric-value">$1,134,768</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Savings Rate</div>
+                        <div class="metric-value positive">19.1%</div>
+                    </div>
+                </div>
+                
+                <div class="summary-section">
+                    <div class="section-title">Current Month: May-2025</div>
+                    <div class="metric-row">
+                        <div class="metric-label">Gross Cost</div>
+                        <div class="metric-value">$679,159</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Total Savings</div>
+                        <div class="metric-value positive">$157,181</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Net Cost</div>
+                        <div class="metric-value">$521,978</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">SSC Fees</div>
+                        <div class="metric-value">$67,916</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Final Cost</div>
+                        <div class="metric-value">$589,894</div>
+                    </div>
+                    <div class="metric-row">
+                        <div class="metric-label">Savings Rate</div>
+                        <div class="metric-value positive">23.1%</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="prepaid-section">
+                <div class="prepaid-title">🏦 AWS Prepaid Credit Tracker</div>
+                <div class="prepaid-grid">
+                    <div class="prepaid-metric">
+                        <div class="label">Starting Balance</div>
+                        <div class="value">$4.50M</div>
+                    </div>
+                    <div class="prepaid-metric">
+                        <div class="label">YTD Depletion</div>
+                        <div class="value">$487,985</div>
+                    </div>
+                    <div class="prepaid-metric">
+                        <div class="label">Remaining Balance</div>
+                        <div class="value">$4.01M</div>
+                    </div>
+                    <div class="prepaid-metric">
+                        <div class="label">Est. Months Left</div>
+                        <div class="value">16.4</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="environment-section">
+                <div class="section-title">Environment Breakdown - May 2025</div>
+                <table class="env-table">
+                    <thead>
+                        <tr>
+                            <th>Environment</th>
+                            <th>Gross</th>
+                            <th>Net</th>
+                            <th>SSC Fee</th>
+                            <th>Total Cost</th>
+                            <th>Savings</th>
+                            <th>Savings Rate</th>
+                            <th>Accounts</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="env-aws">AWS_ASEA</td>
+                            <td>$414,257</td>
+                            <td>$290,560</td>
+                            <td>$41,426</td>
+                            <td>$331,986</td>
+                            <td>$123,697</td>
+                            <td class="positive">29.9%</td>
+                            <td>120</td>
+                        </tr>
+                        <tr>
+                            <td class="env-aws">AWS_LZ</td>
+                            <td>$190,489</td>
+                            <td>$192,550</td>
+                            <td>$19,049</td>
+                            <td>$211,599</td>
+                            <td>$19,991</td>
+                            <td class="positive">10.5%</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td class="env-aws">AWS_CPS</td>
+                            <td>$1,105</td>
+                            <td>$1,217</td>
+                            <td>$111</td>
+                            <td>$1,328</td>
+                            <td>$28</td>
+                            <td class="positive">2.5%</td>
+                            <td>9</td>
+                        </tr>
+                        <tr>
+                            <td class="env-azure">AZURE_CORP</td>
+                            <td>$66,760</td>
+                            <td>$75,439</td>
+                            <td>$6,676</td>
+                            <td>$82,115</td>
+                            <td>$0</td>
+                            <td>0.0%</td>
+                            <td>25</td>
+                        </tr>
+                        <tr>
+                            <td class="env-azure">AZURE_DPM3</td>
+                            <td>$6,614</td>
+                            <td>$7,474</td>
+                            <td>$661</td>
+                            <td>$8,135</td>
+                            <td>$0</td>
+                            <td>0.0%</td>
+                            <td>9</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TOTALS</strong></td>
+                            <td><strong>$679,225</strong></td>
+                            <td><strong>$567,240</strong></td>
+                            <td><strong>$67,923</strong></td>
+                            <td><strong>$635,163</strong></td>
+                            <td><strong>$143,716</strong></td>
+                            <td><strong>21.2%</strong></td>
+                            <td><strong>188</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">Monthly Cost Trends (Apr-May 2025)</div>
+                    <div class="chart-placeholder">
+                        📈 Line Chart: Gross vs Net vs Final Cost Trends
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-title">Savings Composition</div>
+                    <div class="chart-placeholder">
+                        🥧 Pie Chart: Savings Plan vs Bundle vs Enterprise Discounts
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mom-analysis">
+                <div class="mom-title">📊 Month-over-Month Analysis (May vs Apr)</div>
+                <div class="mom-grid">
+                    <div class="mom-metric">
+                        <div class="label">Cost Change</div>
+                        <div class="value">+$110K</div>
+                    </div>
+                    <div class="mom-metric">
+                        <div class="label">Change %</div>
+                        <div class="value">+19.3%</div>
+                    </div>
+                    <div class="mom-metric">
+                        <div class="label">Savings Change</div>
+                        <div class="value">+$63K</div>
+                    </div>
+                    <div class="mom-metric">
+                        <div class="label">Efficiency</div>
+                        <div class="value">+4.0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
