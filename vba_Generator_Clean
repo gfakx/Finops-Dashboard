@@ -13,13 +13,6 @@ Dim DashSheet As Worksheet
 Dim DataSheetName As String
 
 Sub Create_Executive_Dashboard()
-'==================================================================
-' EXECUTIVE CLOUD FINOPS DASHBOARD GENERATOR
-' Creates complete dashboard matching visual guide design
-' Author: Cloud FinOps Analyst
-' Version: 1.0
-'==================================================================
-
     Application.ScreenUpdating = False
     Application.DisplayAlerts = False
     
@@ -45,7 +38,6 @@ Sub Create_Executive_Dashboard()
     ' 6. CREATE ADDITIONAL SECTIONS
     Call Create_Prepaid_Tracker
     Call Create_Account_Summary
-    Call Create_Charts
     
     ' 7. APPLY FORMATTING
     Call Apply_Professional_Formatting
@@ -193,52 +185,11 @@ End Sub
 Sub Create_Executive_Summary_Pivot()
     Dim pt As PivotTable
     Dim pc As PivotCache
-    Dim ws As Worksheet
-    
-    ' Create temporary sheet for pivot table
-    Set ws = Worksheets.Add
-    ws.Name = "Temp_Executive"
     
     ' Create pivot cache
     Set pc = ThisWorkbook.PivotCaches.Create( _
         SourceType:=xlDatabase, _
         SourceData:=DataSheet.ListObjects("CloudCostData").Range)
-    
-    ' Create pivot table
-    Set pt = pc.CreatePivotTable( _
-        TableDestination:=ws.Range("A1"), _
-        TableName:="ExecutiveSummary")
-    
-    With pt
-        ' Configure fields - Using correct column references M-V
-        .PivotFields("Charges_C").Orientation = xlDataField
-        .PivotFields("Gross_C").Orientation = xlDataField
-        .PivotFields("Net_C").Orientation = xlDataField
-        .PivotFields("SSC").Orientation = xlDataField
-        .PivotFields("Savings_Plan_C").Orientation = xlDataField
-        .PivotFields("Bundle_Discount_C").Orientation = xlDataField
-        .PivotFields("Enterprise_Discount_C").Orientation = xlDataField
-        
-        ' Rename fields
-        .DataFields("Sum of Charges_C").Caption = "Total Charges (CAD)"
-        .DataFields("Sum of Gross_C").Caption = "Total Gross Cost (CAD)"
-        .DataFields("Sum of Net_C").Caption = "Total Net Cost (CAD)"
-        .DataFields("Sum of SSC").Caption = "Total SSC Fees (CAD)"
-        .DataFields("Sum of Savings_Plan_C").Caption = "Total Savings Plans (CAD)"
-        .DataFields("Sum of Bundle_Discount_C").Caption = "Total Bundle Discounts (CAD)"
-        .DataFields("Sum of Enterprise_Discount_C").Caption = "Total Enterprise Discounts (CAD)"
-        
-        ' Format as currency
-        Dim i As Integer
-        For i = 1 To .DataFields.Count
-            .DataFields(i).NumberFormat = "$#,##0"
-        Next i
-    End With
-    
-    ' Create pivot table directly on dashboard sheet instead of copying
-    Application.DisplayAlerts = False
-    ws.Delete
-    Application.DisplayAlerts = True
     
     ' Create pivot table directly on dashboard
     Set pt = pc.CreatePivotTable( _
@@ -246,7 +197,7 @@ Sub Create_Executive_Summary_Pivot()
         TableName:="ExecutiveSummary")
     
     With pt
-        ' Configure fields - Using correct column references M-V
+        ' Configure fields
         .PivotFields("Charges_C").Orientation = xlDataField
         .PivotFields("Gross_C").Orientation = xlDataField
         .PivotFields("Net_C").Orientation = xlDataField
@@ -275,17 +226,13 @@ End Sub
 Sub Create_Environment_Breakdown_Pivot()
     Dim pt As PivotTable
     Dim pc As PivotCache
-    Dim ws As Worksheet
-    
-    Set ws = Worksheets.Add
-    ws.Name = "Temp_Environment"
     
     Set pc = ThisWorkbook.PivotCaches.Create( _
         SourceType:=xlDatabase, _
         SourceData:=DataSheet.ListObjects("CloudCostData").Range)
     
     Set pt = pc.CreatePivotTable( _
-        TableDestination:=ws.Range("A1"), _
+        TableDestination:=DashSheet.Range("A29"), _
         TableName:="EnvironmentBreakdown")
     
     With pt
@@ -294,53 +241,32 @@ Sub Create_Environment_Breakdown_Pivot()
         .PivotFields("Gross_C").Orientation = xlDataField
         .PivotFields("Net_C").Orientation = xlDataField
         .PivotFields("SSC").Orientation = xlDataField
-        
-        ' Add calculated fields
-        .CalculatedFields.Add("Total_Cost", "=Net_C+SSC").Orientation = xlDataField
-        .CalculatedFields.Add("Total_Savings", "=ABS(Savings_Plan_C+Bundle_Discount_C+Enterprise_Discount_C)").Orientation = xlDataField
-        .CalculatedFields.Add("Savings_Rate", "=Total_Savings/Gross_C").Orientation = xlDataField
+        .PivotFields("Account_Count").Orientation = xlDataField
         
         ' Rename fields
         .DataFields("Sum of Gross_C").Caption = "Gross Cost"
         .DataFields("Sum of Net_C").Caption = "Net Cost"
         .DataFields("Sum of SSC").Caption = "SSC Fees"
-        .DataFields("Sum of Total_Cost").Caption = "Total Final Cost"
-        .DataFields("Sum of Total_Savings").Caption = "Total Savings"
-        .DataFields("Sum of Savings_Rate").Caption = "Savings Rate"
+        .DataFields("Sum of Account_Count").Caption = "Total Accounts"
         
         ' Format numbers
         .DataFields(1).NumberFormat = "$#,##0"
         .DataFields(2).NumberFormat = "$#,##0"
         .DataFields(3).NumberFormat = "$#,##0"
-        .DataFields(4).NumberFormat = "$#,##0"
-        .DataFields(5).NumberFormat = "$#,##0"
-        .DataFields(6).NumberFormat = "0.0%"
+        .DataFields(4).NumberFormat = "0"
     End With
-    
-    ' Move to dashboard
-    pt.TableRange2.Copy
-    DashSheet.Range("A29").PasteSpecial xlPasteAll
-    Application.CutCopyMode = False
-    
-    Application.DisplayAlerts = False
-    ws.Delete
-    Application.DisplayAlerts = True
 End Sub
 
 Sub Create_Monthly_Trends_Pivot()
     Dim pt As PivotTable
     Dim pc As PivotCache
-    Dim ws As Worksheet
-    
-    Set ws = Worksheets.Add
-    ws.Name = "Temp_Trends"
     
     Set pc = ThisWorkbook.PivotCaches.Create( _
         SourceType:=xlDatabase, _
         SourceData:=DataSheet.ListObjects("CloudCostData").Range)
     
     Set pt = pc.CreatePivotTable( _
-        TableDestination:=ws.Range("A1"), _
+        TableDestination:=DashSheet.Range("H29"), _
         TableName:="MonthlyTrends")
     
     With pt
@@ -350,7 +276,9 @@ Sub Create_Monthly_Trends_Pivot()
         .PivotFields("SSC").Orientation = xlDataField
         
         ' Group by month
+        On Error Resume Next
         .PivotFields("Date").AutoGroup
+        On Error GoTo 0
         
         ' Rename fields
         .DataFields("Sum of Gross_C").Caption = "Gross Cost"
@@ -362,15 +290,6 @@ Sub Create_Monthly_Trends_Pivot()
         .DataFields(2).NumberFormat = "$#,##0"
         .DataFields(3).NumberFormat = "$#,##0"
     End With
-    
-    ' Move to dashboard
-    pt.TableRange2.Copy
-    DashSheet.Range("H29").PasteSpecial xlPasteAll
-    Application.CutCopyMode = False
-    
-    Application.DisplayAlerts = False
-    ws.Delete
-    Application.DisplayAlerts = True
 End Sub
 
 '==================================================================
@@ -387,12 +306,12 @@ Sub Create_And_Connect_Slicers()
     Set pt3 = DashSheet.PivotTables("MonthlyTrends")
     
     ' Create Month Slicer
-    Set sc = ThisWorkbook.SlicerCaches.Add2(pt1, "Date")
+    Set sc = ThisWorkbook.SlicerCaches.Add2(pt3, "Date")
     Set slicer1 = sc.Slicers.Add(DashSheet, , "MonthSlicer", "Select Month(s)", 50, 100, 200, 150)
     
     ' Connect to all pivot tables
+    sc.PivotTables.AddPivotTable pt1
     sc.PivotTables.AddPivotTable pt2
-    sc.PivotTables.AddPivotTable pt3
     
     ' Create Environment Slicer
     Set sc = ThisWorkbook.SlicerCaches.Add2(pt2, "Environment")
@@ -452,22 +371,6 @@ Sub Create_Account_Summary()
     End With
 End Sub
 
-Sub Create_Charts()
-    Dim cht As Chart
-    
-    ' Create trend chart from Monthly Trends pivot
-    Set cht = DashSheet.Shapes.AddChart2(240, xlLine).Chart
-    cht.SetSourceData DashSheet.PivotTables("MonthlyTrends").TableRange1
-    cht.HasTitle = True
-    cht.ChartTitle.Text = "Monthly Cost Trends (CAD)"
-    
-    ' Position chart
-    DashSheet.Shapes(DashSheet.Shapes.Count).Left = 600
-    DashSheet.Shapes(DashSheet.Shapes.Count).Top = 400
-    DashSheet.Shapes(DashSheet.Shapes.Count).Width = 400
-    DashSheet.Shapes(DashSheet.Shapes.Count).Height = 250
-End Sub
-
 '==================================================================
 ' 7. APPLY FORMATTING
 '==================================================================
@@ -481,16 +384,6 @@ Sub Apply_Professional_Formatting()
         .Range("A14:F20").Borders.LineStyle = xlContinuous
         .Range("A29:G40").Borders.LineStyle = xlContinuous
         .Range("A44:C48").Borders.LineStyle = xlContinuous
-        
-        ' Color coding for environments
-        Dim rng As Range
-        For Each rng In .Range("A29:G40").Rows
-            If InStr(rng.Cells(1, 1).Value, "AWS") > 0 Then
-                rng.Interior.Color = RGB(255, 243, 205) ' Light orange
-            ElseIf InStr(rng.Cells(1, 1).Value, "AZURE") > 0 Then
-                rng.Interior.Color = RGB(219, 234, 254) ' Light blue
-            End If
-        Next rng
         
         ' Make headers bold
         .Range("A12,A27,A42,A50").Font.Bold = True
