@@ -1,4 +1,3 @@
-Sub Create_Executive_Dashboard()
 '==================================================================
 ' EXECUTIVE CLOUD FINOPS DASHBOARD GENERATOR
 ' Creates complete dashboard matching visual guide design
@@ -6,6 +5,14 @@ Sub Create_Executive_Dashboard()
 ' Version: 1.0
 '==================================================================
 
+'==================================================================
+' GLOBAL VARIABLES
+'==================================================================
+Dim DataSheet As Worksheet
+Dim DashSheet As Worksheet
+Dim DataSheetName As String
+
+Sub Create_Executive_Dashboard()
     Application.ScreenUpdating = False
     Application.DisplayAlerts = False
     
@@ -501,10 +508,3 @@ Sub Refresh_Dashboard()
     
     MsgBox "Dashboard refreshed successfully!", vbInformation, "Refresh Complete"
 End Sub
-
-'==================================================================
-' GLOBAL VARIABLES
-'==================================================================
-Dim DataSheet As Worksheet
-Dim DashSheet As Worksheet
-Dim DataSheetName As String
