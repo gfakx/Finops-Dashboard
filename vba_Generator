@@ -200,7 +200,7 @@ Sub Create_Executive_Summary_Pivot()
         .PivotFields("Charges_C").Orientation = xlDataField
         .PivotFields("Gross_C").Orientation = xlDataField
         .PivotFields("Net_C").Orientation = xlDataField
-        .PivotFields("SSC (10% of Gross)").Orientation = xlDataField
+        .PivotFields("SSC").Orientation = xlDataField
         .PivotFields("Savings_Plan_C").Orientation = xlDataField
         .PivotFields("Bundle_Discount_C").Orientation = xlDataField
         .PivotFields("Enterprise_Discount_C").Orientation = xlDataField
@@ -209,7 +209,7 @@ Sub Create_Executive_Summary_Pivot()
         .DataFields("Sum of Charges_C").Caption = "Total Charges (CAD)"
         .DataFields("Sum of Gross_C").Caption = "Total Gross Cost (CAD)"
         .DataFields("Sum of Net_C").Caption = "Total Net Cost (CAD)"
-        .DataFields("Sum of SSC (10% of Gross)").Caption = "Total SSC Fees (CAD)"
+        .DataFields("Sum of SSC").Caption = "Total SSC Fees (CAD)"
         .DataFields("Sum of Savings_Plan_C").Caption = "Total Savings Plans (CAD)"
         .DataFields("Sum of Bundle_Discount_C").Caption = "Total Bundle Discounts (CAD)"
         .DataFields("Sum of Enterprise_Discount_C").Caption = "Total Enterprise Discounts (CAD)"
@@ -253,10 +253,10 @@ Sub Create_Environment_Breakdown_Pivot()
         .PivotFields("Environment").Orientation = xlRowField
         .PivotFields("Gross_C").Orientation = xlDataField
         .PivotFields("Net_C").Orientation = xlDataField
-        .PivotFields("SSC (10% of Gross)").Orientation = xlDataField
+        .PivotFields("SSC").Orientation = xlDataField
         
         ' Add calculated fields
-        Set cf = .CalculatedFields.Add("Total_Cost", "=Net_C+'SSC (10% of Gross)'")
+        Set cf = .CalculatedFields.Add("Total_Cost", "=Net_C+SSC")
         cf.Orientation = xlDataField
         
         Set cf = .CalculatedFields.Add("Total_Savings", "=ABS(Savings_Plan_C+Bundle_Discount_C+Enterprise_Discount_C)")
@@ -268,7 +268,7 @@ Sub Create_Environment_Breakdown_Pivot()
         ' Rename fields
         .DataFields("Sum of Gross_C").Caption = "Gross Cost"
         .DataFields("Sum of Net_C").Caption = "Net Cost"
-        .DataFields("Sum of SSC (10% of Gross)").Caption = "SSC Fees"
+        .DataFields("Sum of SSC").Caption = "SSC Fees"
         .DataFields("Sum of Total_Cost").Caption = "Total Final Cost"
         .DataFields("Sum of Total_Savings").Caption = "Total Savings"
         .DataFields("Sum of Savings_Rate").Caption = "Savings Rate"
@@ -312,7 +312,7 @@ Sub Create_Monthly_Trends_Pivot()
         .PivotFields("Date").Orientation = xlRowField
         .PivotFields("Gross_C").Orientation = xlDataField
         .PivotFields("Net_C").Orientation = xlDataField
-        .PivotFields("SSC (10% of Gross)").Orientation = xlDataField
+        .PivotFields("SSC").Orientation = xlDataField
         
         ' Group by month
         .PivotFields("Date").AutoGroup
@@ -320,7 +320,7 @@ Sub Create_Monthly_Trends_Pivot()
         ' Rename fields
         .DataFields("Sum of Gross_C").Caption = "Gross Cost"
         .DataFields("Sum of Net_C").Caption = "Net Cost"
-        .DataFields("Sum of SSC (10% of Gross)").Caption = "SSC Fees"
+        .DataFields("Sum of SSC").Caption = "SSC Fees"
         
         ' Format as currency
         .DataFields(1).NumberFormat = "$#,##0"
@@ -382,7 +382,7 @@ Sub Create_Prepaid_Tracker()
         .Range("C44").NumberFormat = "$#,##0"
         
         .Range("A45").Value = "YTD AWS Depletion (CAD):"
-        .Range("A45").Formula = "=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,""AWS_ASEA"")+SUMIFS(Data_Entry!T:T,Data_Entry!B:B,""AWS_LZ"")"
+        .Range("C45").Formula = "=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,""AWS_ASEA"")+SUMIFS(Data_Entry!T:T,Data_Entry!B:B,""AWS_LZ"")"
         .Range("C45").NumberFormat = "$#,##0"
         
         .Range("A46").Value = "Remaining Balance (CAD):"
