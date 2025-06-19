@@ -1,0 +1,518 @@
+'==================================================================
+' EXECUTIVE CLOUD FINOPS DASHBOARD GENERATOR
+' Creates complete dashboard matching visual guide design
+' Author: Cloud FinOps Analyst
+' Version: 1.0
+'==================================================================
+
+'==================================================================
+' GLOBAL VARIABLES
+'==================================================================
+Dim DataSheet As Worksheet
+Dim DashSheet As Worksheet
+Dim DataSheetName As String
+
+Sub Create_Executive_Dashboard()
+'==================================================================
+' EXECUTIVE CLOUD FINOPS DASHBOARD GENERATOR
+' Creates complete dashboard matching visual guide design
+' Author: Cloud FinOps Analyst
+' Version: 1.0
+'==================================================================
+
+    Application.ScreenUpdating = False
+    Application.DisplayAlerts = False
+    
+    On Error GoTo ErrorHandler
+    
+    ' 1. SETUP AND VALIDATION
+    Call Setup_Workbook
+    
+    ' 2. CREATE DATA TABLE
+    Call Create_Data_Table
+    
+    ' 3. CREATE DASHBOARD SHEET
+    Call Create_Dashboard_Sheet
+    
+    ' 4. CREATE PIVOT TABLES
+    Call Create_Executive_Summary_Pivot
+    Call Create_Environment_Breakdown_Pivot
+    Call Create_Monthly_Trends_Pivot
+    
+    ' 5. CREATE SLICERS
+    Call Create_And_Connect_Slicers
+    
+    ' 6. CREATE ADDITIONAL SECTIONS
+    Call Create_Prepaid_Tracker
+    Call Create_Account_Summary
+    Call Create_Charts
+    
+    ' 7. APPLY FORMATTING
+    Call Apply_Professional_Formatting
+    
+    ' 8. CREATE REFRESH AUTOMATION
+    Call Create_Refresh_Button
+    
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    
+    MsgBox "Executive Dashboard created successfully!" & vbCrLf & _
+           "✅ All pivot tables configured" & vbCrLf & _
+           "✅ Slicers connected and working" & vbCrLf & _
+           "✅ Professional formatting applied" & vbCrLf & _
+           "✅ Ready for executive presentation", vbInformation, "Dashboard Complete"
+    
+    Exit Sub
+
+ErrorHandler:
+    Application.ScreenUpdating = True
+    Application.DisplayAlerts = True
+    MsgBox "Error creating dashboard: " & Err.Description, vbCritical, "Error"
+End Sub
+
+'==================================================================
+' 1. SETUP AND VALIDATION
+'==================================================================
+Sub Setup_Workbook()
+    Dim ws As Worksheet
+    
+    ' Find and validate Data_Entry sheet
+    On Error Resume Next
+    Set ws = Worksheets("Data_Entry")
+    On Error GoTo 0
+    
+    If ws Is Nothing Then
+        MsgBox "Data_Entry sheet not found. Please ensure your data sheet is named 'Data_Entry'", vbCritical
+        Exit Sub
+    End If
+    
+    If ws.Range("B1").Value <> "Environment" Then
+        MsgBox "Please ensure Data_Entry sheet has Environment in column B1", vbCritical
+        Exit Sub
+    End If
+    
+    ' Store reference to data sheet
+    Set DataSheet = ws
+    DataSheetName = "Data_Entry"
+End Sub
+
+'==================================================================
+' 2. CREATE DATA TABLE
+'==================================================================
+Sub Create_Data_Table()
+    Dim LastRow As Long
+    Dim LastCol As Long
+    Dim TableRange As Range
+    
+    With DataSheet
+        ' Find last row and column with data
+        LastRow = .Cells(.Rows.Count, "B").End(xlUp).Row
+        LastCol = 22 ' Column V (Account_Count)
+        
+        ' Define table range (A1 to V + last row)
+        Set TableRange = .Range(.Cells(1, 1), .Cells(LastRow, LastCol))
+        
+        ' Convert to table if not already
+        If Not TableExists("CloudCostData") Then
+            .ListObjects.Add(xlSrcRange, TableRange, , xlYes).Name = "CloudCostData"
+            .ListObjects("CloudCostData").TableStyle = "TableStyleMedium2"
+        End If
+    End With
+End Sub
+
+Function TableExists(TableName As String) As Boolean
+    Dim tbl As ListObject
+    On Error Resume Next
+    Set tbl = DataSheet.ListObjects(TableName)
+    TableExists = Not tbl Is Nothing
+    On Error GoTo 0
+End Function
+
+'==================================================================
+' 3. CREATE DASHBOARD SHEET
+'==================================================================
+Sub Create_Dashboard_Sheet()
+    Dim ws As Worksheet
+    
+    ' Delete existing dashboard sheet if exists
+    On Error Resume Next
+    Application.DisplayAlerts = False
+    Worksheets("Executive_Dashboard").Delete
+    Application.DisplayAlerts = True
+    On Error GoTo 0
+    
+    ' Create new dashboard sheet
+    Set DashSheet = Worksheets.Add(After:=DataSheet)
+    DashSheet.Name = "Executive_Dashboard"
+    
+    ' Set up header
+    With DashSheet
+        .Range("A1:P1").Merge
+        .Range("A1").Value = "EXECUTIVE CLOUD FINANCIAL DASHBOARD"
+        .Range("A1").Font.Size = 18
+        .Range("A1").Font.Bold = True
+        .Range("A1").HorizontalAlignment = xlCenter
+        .Range("A1").Interior.Color = RGB(30, 58, 138)
+        .Range("A1").Font.Color = RGB(255, 255, 255)
+        .Range("A1").RowHeight = 35
+        
+        .Range("A2:P2").Merge
+        .Range("A2").Value = "Financial Year: Apr-2025 to Mar-2026"
+        .Range("A2").Font.Size = 14
+        .Range("A2").Font.Bold = True
+        .Range("A2").HorizontalAlignment = xlCenter
+        .Range("A2").Interior.Color = RGB(59, 130, 246)
+        .Range("A2").Font.Color = RGB(255, 255, 255)
+        
+        .Range("A3").Value = "Last Updated:"
+        .Range("C3").Value = Now()
+        .Range("C3").NumberFormat = "dd-mmm-yyyy hh:mm"
+        
+        ' Section headers
+        .Range("A5").Value = "DASHBOARD CONTROLS"
+        .Range("A5").Font.Bold = True
+        .Range("A5").Font.Size = 12
+        
+        .Range("A12").Value = "EXECUTIVE SUMMARY"
+        .Range("A12").Font.Bold = True
+        .Range("A12").Font.Size = 12
+        
+        .Range("A27").Value = "ENVIRONMENT ANALYSIS"
+        .Range("A27").Font.Bold = True
+        .Range("A27").Font.Size = 12
+        
+        .Range("A42").Value = "AWS PREPAID CREDIT TRACKER"
+        .Range("A42").Font.Bold = True
+        .Range("A42").Font.Size = 12
+    End With
+End Sub
+
+'==================================================================
+' 4. CREATE PIVOT TABLES
+'==================================================================
+Sub Create_Executive_Summary_Pivot()
+    Dim pt As PivotTable
+    Dim pc As PivotCache
+    Dim ws As Worksheet
+    
+    ' Create temporary sheet for pivot table
+    Set ws = Worksheets.Add
+    ws.Name = "Temp_Executive"
+    
+    ' Create pivot cache
+    Set pc = ThisWorkbook.PivotCaches.Create( _
+        SourceType:=xlDatabase, _
+        SourceData:=DataSheet.ListObjects("CloudCostData").Range)
+    
+    ' Create pivot table
+    Set pt = pc.CreatePivotTable( _
+        TableDestination:=ws.Range("A1"), _
+        TableName:="ExecutiveSummary")
+    
+    With pt
+        ' Configure fields - Using correct column references M-V
+        .PivotFields("Charges_C").Orientation = xlDataField
+        .PivotFields("Gross_C").Orientation = xlDataField
+        .PivotFields("Net_C").Orientation = xlDataField
+        .PivotFields("SSC").Orientation = xlDataField
+        .PivotFields("Savings_Plan_C").Orientation = xlDataField
+        .PivotFields("Bundle_Discount_C").Orientation = xlDataField
+        .PivotFields("Enterprise_Discount_C").Orientation = xlDataField
+        
+        ' Rename fields
+        .DataFields("Sum of Charges_C").Caption = "Total Charges (CAD)"
+        .DataFields("Sum of Gross_C").Caption = "Total Gross Cost (CAD)"
+        .DataFields("Sum of Net_C").Caption = "Total Net Cost (CAD)"
+        .DataFields("Sum of SSC").Caption = "Total SSC Fees (CAD)"
+        .DataFields("Sum of Savings_Plan_C").Caption = "Total Savings Plans (CAD)"
+        .DataFields("Sum of Bundle_Discount_C").Caption = "Total Bundle Discounts (CAD)"
+        .DataFields("Sum of Enterprise_Discount_C").Caption = "Total Enterprise Discounts (CAD)"
+        
+        ' Format as currency
+        Dim i As Integer
+        For i = 1 To .DataFields.Count
+            .DataFields(i).NumberFormat = "$#,##0"
+        Next i
+    End With
+    
+    ' Move to dashboard
+    pt.TableRange2.Copy
+    DashSheet.Range("A14").PasteSpecial xlPasteAll
+    Application.CutCopyMode = False
+    
+    ' Delete temporary sheet
+    Application.DisplayAlerts = False
+    ws.Delete
+    Application.DisplayAlerts = True
+End Sub
+
+Sub Create_Environment_Breakdown_Pivot()
+    Dim pt As PivotTable
+    Dim pc As PivotCache
+    Dim ws As Worksheet
+    Dim cf As CalculatedField
+    
+    Set ws = Worksheets.Add
+    ws.Name = "Temp_Environment"
+    
+    Set pc = ThisWorkbook.PivotCaches.Create( _
+        SourceType:=xlDatabase, _
+        SourceData:=DataSheet.ListObjects("CloudCostData").Range)
+    
+    Set pt = pc.CreatePivotTable( _
+        TableDestination:=ws.Range("A1"), _
+        TableName:="EnvironmentBreakdown")
+    
+    With pt
+        ' Set up rows and values
+        .PivotFields("Environment").Orientation = xlRowField
+        .PivotFields("Gross_C").Orientation = xlDataField
+        .PivotFields("Net_C").Orientation = xlDataField
+        .PivotFields("SSC").Orientation = xlDataField
+        
+        ' Add calculated fields
+        Set cf = .CalculatedFields.Add("Total_Cost", "=Net_C+SSC")
+        cf.Orientation = xlDataField
+        
+        Set cf = .CalculatedFields.Add("Total_Savings", "=ABS(Savings_Plan_C+Bundle_Discount_C+Enterprise_Discount_C)")
+        cf.Orientation = xlDataField
+        
+        Set cf = .CalculatedFields.Add("Savings_Rate", "=Total_Savings/Gross_C")
+        cf.Orientation = xlDataField
+        
+        ' Rename fields
+        .DataFields("Sum of Gross_C").Caption = "Gross Cost"
+        .DataFields("Sum of Net_C").Caption = "Net Cost"
+        .DataFields("Sum of SSC").Caption = "SSC Fees"
+        .DataFields("Sum of Total_Cost").Caption = "Total Final Cost"
+        .DataFields("Sum of Total_Savings").Caption = "Total Savings"
+        .DataFields("Sum of Savings_Rate").Caption = "Savings Rate"
+        
+        ' Format numbers
+        .DataFields(1).NumberFormat = "$#,##0"
+        .DataFields(2).NumberFormat = "$#,##0"
+        .DataFields(3).NumberFormat = "$#,##0"
+        .DataFields(4).NumberFormat = "$#,##0"
+        .DataFields(5).NumberFormat = "$#,##0"
+        .DataFields(6).NumberFormat = "0.0%"
+    End With
+    
+    ' Move to dashboard
+    pt.TableRange2.Copy
+    DashSheet.Range("A29").PasteSpecial xlPasteAll
+    Application.CutCopyMode = False
+    
+    Application.DisplayAlerts = False
+    ws.Delete
+    Application.DisplayAlerts = True
+End Sub
+
+Sub Create_Monthly_Trends_Pivot()
+    Dim pt As PivotTable
+    Dim pc As PivotCache
+    Dim ws As Worksheet
+    
+    Set ws = Worksheets.Add
+    ws.Name = "Temp_Trends"
+    
+    Set pc = ThisWorkbook.PivotCaches.Create( _
+        SourceType:=xlDatabase, _
+        SourceData:=DataSheet.ListObjects("CloudCostData").Range)
+    
+    Set pt = pc.CreatePivotTable( _
+        TableDestination:=ws.Range("A1"), _
+        TableName:="MonthlyTrends")
+    
+    With pt
+        .PivotFields("Date").Orientation = xlRowField
+        .PivotFields("Gross_C").Orientation = xlDataField
+        .PivotFields("Net_C").Orientation = xlDataField
+        .PivotFields("SSC").Orientation = xlDataField
+        
+        ' Group by month
+        .PivotFields("Date").AutoGroup
+        
+        ' Rename fields
+        .DataFields("Sum of Gross_C").Caption = "Gross Cost"
+        .DataFields("Sum of Net_C").Caption = "Net Cost"
+        .DataFields("Sum of SSC").Caption = "SSC Fees"
+        
+        ' Format as currency
+        .DataFields(1).NumberFormat = "$#,##0"
+        .DataFields(2).NumberFormat = "$#,##0"
+        .DataFields(3).NumberFormat = "$#,##0"
+    End With
+    
+    ' Move to dashboard
+    pt.TableRange2.Copy
+    DashSheet.Range("H29").PasteSpecial xlPasteAll
+    Application.CutCopyMode = False
+    
+    Application.DisplayAlerts = False
+    ws.Delete
+    Application.DisplayAlerts = True
+End Sub
+
+'==================================================================
+' 5. CREATE SLICERS
+'==================================================================
+Sub Create_And_Connect_Slicers()
+    Dim pt1 As PivotTable, pt2 As PivotTable, pt3 As PivotTable
+    Dim slicer1 As Slicer, slicer2 As Slicer
+    Dim sc As SlicerCache
+    
+    ' Get pivot table references
+    Set pt1 = DashSheet.PivotTables("ExecutiveSummary")
+    Set pt2 = DashSheet.PivotTables("EnvironmentBreakdown")
+    Set pt3 = DashSheet.PivotTables("MonthlyTrends")
+    
+    ' Create Month Slicer
+    Set sc = ThisWorkbook.SlicerCaches.Add2(pt1, "Date")
+    Set slicer1 = sc.Slicers.Add(DashSheet, , "MonthSlicer", "Select Month(s)", 50, 100, 200, 150)
+    
+    ' Connect to all pivot tables
+    sc.PivotTables.AddPivotTable pt2
+    sc.PivotTables.AddPivotTable pt3
+    
+    ' Create Environment Slicer
+    Set sc = ThisWorkbook.SlicerCaches.Add2(pt2, "Environment")
+    Set slicer2 = sc.Slicers.Add(DashSheet, , "EnvironmentSlicer", "Filter by Environment", 300, 100, 200, 150)
+    
+    ' Connect to all pivot tables
+    sc.PivotTables.AddPivotTable pt1
+    sc.PivotTables.AddPivotTable pt3
+    
+    ' Style slicers
+    slicer1.Style = "SlicerStyleLight2"
+    slicer2.Style = "SlicerStyleLight2"
+End Sub
+
+'==================================================================
+' 6. CREATE ADDITIONAL SECTIONS
+'==================================================================
+Sub Create_Prepaid_Tracker()
+    With DashSheet
+        .Range("A44").Value = "Starting Balance (CAD):"
+        .Range("C44").Value = 6147000
+        .Range("C44").NumberFormat = "$#,##0"
+        
+        .Range("A45").Value = "YTD AWS Depletion (CAD):"
+        .Range("C45").Formula = "=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,""AWS_ASEA"")+SUMIFS(Data_Entry!T:T,Data_Entry!B:B,""AWS_LZ"")"
+        .Range("C45").NumberFormat = "$#,##0"
+        
+        .Range("A46").Value = "Remaining Balance (CAD):"
+        .Range("C46").Formula = "=C44-C45"
+        .Range("C46").NumberFormat = "$#,##0"
+        
+        .Range("A47").Value = "Monthly Burn Rate:"
+        .Range("C47").Formula = "=C45/2"
+        .Range("C47").NumberFormat = "$#,##0"
+        
+        .Range("A48").Value = "Estimated Months Left:"
+        .Range("C48").Formula = "=IF(C47>0,C46/C47,999)"
+        .Range("C48").NumberFormat = "0.0"
+        
+        ' Add conditional formatting
+        .Range("C46").FormatConditions.Add Type:=xlCellValue, Operator:=xlLess, Formula1:="1000000"
+        .Range("C46").FormatConditions(1).Interior.Color = RGB(255, 0, 0)
+    End With
+End Sub
+
+Sub Create_Account_Summary()
+    With DashSheet
+        .Range("A50").Value = "ACCOUNT SUMMARY - SMART COUNTING"
+        .Range("A50").Font.Bold = True
+        
+        .Range("A52").Value = "Current Active Accounts:"
+        .Range("C52").Formula = "=SUMIF(Data_Entry!C:C,MAX(Data_Entry!C:C),Data_Entry!V:V)"
+        .Range("C52").NumberFormat = "0"
+        
+        .Range("A53").Value = "Latest Month:"
+        .Range("C53").Formula = "=TEXT(MAX(Data_Entry!C:C),""mmm-yyyy"")"
+    End With
+End Sub
+
+Sub Create_Charts()
+    Dim cht As Chart
+    
+    ' Create trend chart from Monthly Trends pivot
+    Set cht = DashSheet.Shapes.AddChart2(240, xlLine).Chart
+    cht.SetSourceData DashSheet.PivotTables("MonthlyTrends").TableRange1
+    cht.HasTitle = True
+    cht.ChartTitle.Text = "Monthly Cost Trends (CAD)"
+    
+    ' Position chart
+    DashSheet.Shapes(DashSheet.Shapes.Count).Left = 600
+    DashSheet.Shapes(DashSheet.Shapes.Count).Top = 400
+    DashSheet.Shapes(DashSheet.Shapes.Count).Width = 400
+    DashSheet.Shapes(DashSheet.Shapes.Count).Height = 250
+End Sub
+
+'==================================================================
+' 7. APPLY FORMATTING
+'==================================================================
+Sub Apply_Professional_Formatting()
+    With DashSheet
+        ' Set column widths
+        .Columns("A:A").ColumnWidth = 25
+        .Columns("B:P").ColumnWidth = 12
+        
+        ' Apply borders to main sections
+        .Range("A14:F20").Borders.LineStyle = xlContinuous
+        .Range("A29:G40").Borders.LineStyle = xlContinuous
+        .Range("A44:C48").Borders.LineStyle = xlContinuous
+        
+        ' Color coding for environments
+        Dim rng As Range
+        For Each rng In .Range("A29:G40").Rows
+            If InStr(rng.Cells(1, 1).Value, "AWS") > 0 Then
+                rng.Interior.Color = RGB(255, 243, 205) ' Light orange
+            ElseIf InStr(rng.Cells(1, 1).Value, "AZURE") > 0 Then
+                rng.Interior.Color = RGB(219, 234, 254) ' Light blue
+            End If
+        Next rng
+        
+        ' Make headers bold
+        .Range("A12,A27,A42,A50").Font.Bold = True
+        .Range("A12,A27,A42,A50").Font.Color = RGB(37, 99, 235)
+    End With
+End Sub
+
+'==================================================================
+' 8. CREATE REFRESH AUTOMATION
+'==================================================================
+Sub Create_Refresh_Button()
+    Dim btn As Button
+    
+    Set btn = DashSheet.Buttons.Add(550, 50, 100, 30)
+    btn.Text = "🔄 Refresh All"
+    btn.OnAction = "Refresh_Dashboard"
+    
+    ' Add instructions
+    With DashSheet
+        .Range("A55").Value = "MONTHLY UPDATE PROCESS"
+        .Range("A55").Font.Bold = True
+        .Range("A55").Font.Color = RGB(22, 101, 52)
+        
+        .Range("A57").Value = "1. Add new month data to " & DataSheetName & " sheet"
+        .Range("A58").Value = "2. Click 'Refresh All' button above"
+        .Range("A59").Value = "3. Dashboard automatically updates with new data"
+    End With
+End Sub
+
+Sub Refresh_Dashboard()
+    Application.ScreenUpdating = False
+    
+    ' Refresh all pivot tables
+    Dim pt As PivotTable
+    For Each pt In DashSheet.PivotTables
+        pt.RefreshTable
+    Next pt
+    
+    ' Update last modified
+    DashSheet.Range("C3").Value = Now()
+    
+    Application.ScreenUpdating = True
+    
+    MsgBox "Dashboard refreshed successfully!", vbInformation, "Refresh Complete"
+End Sub
