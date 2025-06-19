@@ -31,7 +31,7 @@ V: Account_Count       (Used for account tracking)
 ### **Verification:**
 1. **Check that Column U (SSC_Fee_CAD)** has the formula `=R2*0.1` (or similar)
 2. **Confirm your data goes through Column V**
-3. **Note your sheet name** (replace "Sheet1" in formulas below)
+3. **Note your sheet name** (replace "Data_Entry" in formulas below)
 
 ---
 
@@ -73,19 +73,19 @@ V: Account_Count       (Used for account tracking)
 
 **Row 10 - Total Gross Cost (CAD):**
 - A10: `Total Gross Cost (CAD):`
-- C10: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31))`
+- C10: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31))`
 
 **Row 11 - Total Savings (CAD):**
 - A11: `Total Savings (CAD):`
-- C11: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31))+SUMIFS(Sheet1!O:O,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31))+SUMIFS(Sheet1!P:P,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31))`
+- C11: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31))+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31))+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31))`
 
 **Row 12 - Total Net Cost (CAD):**
 - A12: `Total Net Cost (CAD):`
-- C12: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31))`
+- C12: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31))`
 
 **Row 13 - Total SSC Fees (CAD):**
 - A13: `Total SSC Fees (CAD):`
-- C13: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31))`
+- C13: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31))`
 
 **Row 14 - Total Final Cost:**
 - A14: `Total Final Cost (CAD):`
@@ -111,19 +111,19 @@ V: Account_Count       (Used for account tracking)
 
 **Row 10:**
 - E10: `Gross Cost (CAD):`
-- G10: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,C5)`
+- G10: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,C5)`
 
 **Row 11:**
 - E11: `Total Savings (CAD):`
-- G11: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,C5)+SUMIFS(Sheet1!O:O,Sheet1!B:B,C5)+SUMIFS(Sheet1!P:P,Sheet1!B:B,C5)`
+- G11: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,C5)+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,C5)+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,C5)`
 
 **Row 12:**
 - E12: `Net Cost (CAD):`
-- G12: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,C5)`
+- G12: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,C5)`
 
 **Row 13:**
 - E13: `SSC Fees (CAD):`
-- G13: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,C5)`
+- G13: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,C5)`
 
 **Row 14:**
 - E14: `Final Cost (CAD):`
@@ -149,7 +149,7 @@ V: Account_Count       (Used for account tracking)
 
 **Row 20:**
 - A20: `YTD AWS Depletion (CAD):`
-- C20: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31),Sheet1!A:A,"AWS_ASEA")+SUMIFS(Sheet1!T:T,Sheet1!B:B,">="&DATE(2025,4,1),Sheet1!B:B,"<="&DATE(2026,3,31),Sheet1!A:A,"AWS_LZ")`
+- C20: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31),Data_Entry!A:A,"AWS_ASEA")+SUMIFS(Data_Entry!T:T,Data_Entry!B:B,">="&DATE(2025,4,1),Data_Entry!B:B,"<="&DATE(2026,3,31),Data_Entry!A:A,"AWS_LZ")`
 
 **Row 21:**
 - A21: `Remaining Balance (CAD):`
@@ -180,53 +180,53 @@ E26: Total_Cost | F26: Savings_CAD | G26: Savings_Rate | H26: Accounts
 
 **Row 27 (AWS_ASEA):**
 - A27: `AWS_ASEA`
-- B27: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")`
-- C27: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")`
-- D27: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")`
+- B27: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")`
+- C27: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")`
+- D27: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")`
 - E27: `=C27+D27`
-- F27: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")+SUMIFS(Sheet1!O:O,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")+SUMIFS(Sheet1!P:P,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")`
+- F27: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")`
 - G27: `=IF(B27>0,F27/B27,0)`
-- H27: `=SUMIFS(Sheet1!V:V,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_ASEA")`
+- H27: `=SUMIFS(Data_Entry!V:V,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_ASEA")`
 
 **Row 28 (AWS_LZ):**
 - A28: `AWS_LZ`
-- B28: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")`
-- C28: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")`
-- D28: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")`
+- B28: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")`
+- C28: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")`
+- D28: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")`
 - E28: `=C28+D28`
-- F28: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")+SUMIFS(Sheet1!O:O,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")+SUMIFS(Sheet1!P:P,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")`
+- F28: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")`
 - G28: `=IF(B28>0,F28/B28,0)`
-- H28: `=SUMIFS(Sheet1!V:V,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_LZ")`
+- H28: `=SUMIFS(Data_Entry!V:V,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_LZ")`
 
 **Row 29 (AWS_CPS):**
 - A29: `AWS_CPS`
-- B29: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")`
-- C29: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")`
-- D29: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")`
+- B29: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")`
+- C29: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")`
+- D29: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")`
 - E29: `=C29+D29`
-- F29: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")+SUMIFS(Sheet1!O:O,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")+SUMIFS(Sheet1!P:P,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")`
+- F29: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")`
 - G29: `=IF(B29>0,F29/B29,0)`
-- H29: `=SUMIFS(Sheet1!V:V,Sheet1!B:B,$C$5,Sheet1!A:A,"AWS_CPS")`
+- H29: `=SUMIFS(Data_Entry!V:V,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AWS_CPS")`
 
 **Row 30 (AZURE_CORP):**
 - A30: `AZURE_CORP`
-- B30: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")`
-- C30: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")`
-- D30: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")`
+- B30: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")`
+- C30: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")`
+- D30: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")`
 - E30: `=C30+D30`
-- F30: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")+SUMIFS(Sheet1!O:O,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")+SUMIFS(Sheet1!P:P,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")`
+- F30: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")`
 - G30: `=IF(B30>0,F30/B30,0)`
-- H30: `=SUMIFS(Sheet1!V:V,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_CORP")`
+- H30: `=SUMIFS(Data_Entry!V:V,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_CORP")`
 
 **Row 31 (AZURE_DPM3):**
 - A31: `AZURE_DPM3`
-- B31: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")`
-- C31: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")`
-- D31: `=SUMIFS(Sheet1!U:U,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")`
+- B31: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")`
+- C31: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")`
+- D31: `=SUMIFS(Data_Entry!U:U,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")`
 - E31: `=C31+D31`
-- F31: `=SUMIFS(Sheet1!N:N,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")+SUMIFS(Sheet1!O:O,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")+SUMIFS(Sheet1!P:P,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")`
+- F31: `=SUMIFS(Data_Entry!N:N,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")+SUMIFS(Data_Entry!O:O,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")+SUMIFS(Data_Entry!P:P,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")`
 - G31: `=IF(B31>0,F31/B31,0)`
-- H31: `=SUMIFS(Sheet1!V:V,Sheet1!B:B,$C$5,Sheet1!A:A,"AZURE_DPM3")`
+- H31: `=SUMIFS(Data_Entry!V:V,Data_Entry!B:B,$C$5,Data_Entry!A:A,"AZURE_DPM3")`
 
 **Row 32 (TOTALS):**
 - A32: `TOTALS`
@@ -254,7 +254,7 @@ E26: Total_Cost | F26: Savings_CAD | G26: Savings_Rate | H26: Accounts
 
 **Row 38:**
 - A38: `Previous Month Total (CAD):`
-- C38: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,C36)+SUMIFS(Sheet1!U:U,Sheet1!B:B,C36)`
+- C38: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,C36)+SUMIFS(Data_Entry!U:U,Data_Entry!B:B,C36)`
 
 **Row 39:**
 - A39: `Current Month Total (CAD):`
@@ -283,9 +283,9 @@ A46: May-2025  | B46: [formula]  | C46: [formula] | D46: [formula]
 ```
 
 **Formulas:**
-- B45: `=SUMIFS(Sheet1!R:R,Sheet1!B:B,"Apr-2025")`
-- C45: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,"Apr-2025")`
-- D45: `=SUMIFS(Sheet1!T:T,Sheet1!B:B,"Apr-2025")+SUMIFS(Sheet1!U:U,Sheet1!B:B,"Apr-2025")`
+- B45: `=SUMIFS(Data_Entry!R:R,Data_Entry!B:B,"Apr-2025")`
+- C45: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,"Apr-2025")`
+- D45: `=SUMIFS(Data_Entry!T:T,Data_Entry!B:B,"Apr-2025")+SUMIFS(Data_Entry!U:U,Data_Entry!B:B,"Apr-2025")`
 - (Repeat for May-2025 in row 46)
 
 ### **Create charts:**
