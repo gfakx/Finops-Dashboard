@@ -503,7 +503,7 @@ Sub Refresh_Dashboard()
     
     ' Update last modified
     DashSheet.Range("C3").Value = Now()
-    
+     
     Application.ScreenUpdating = True
     
     MsgBox "Dashboard refreshed successfully!", vbInformation, "Refresh Complete"
