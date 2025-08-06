@@ -684,3 +684,250 @@ September 5: Coverage verification (expect 85% coverage)
 - **Escape flexibility**: Can adjust in 1 year vs 3-year commitment
 
 **Ready for your decision, Director. All analysis based on our actual usage data and AWS recommendations.**
+
+
+# Step-by-Step QuickSight Visual Creation Guide - Using Your Exact Data Fields
+
+## **Analysis of Your Current QuickSight Setup:**
+
+### **Your Datasets:**
+1. **"hourly_view"** - Detailed hourly data (Images 1 & 2)
+2. **"summary_view"** - Monthly aggregated data (Image 3)
+
+### **Your Exact Field Names (from Images):**
+```
+From hourly_view dataset:
+✓ amortized_cost
+✓ savings_plan_effective_cost  
+✓ reservation_effective_cost
+✓ Cost
+✓ usage_date
+✓ purchase_option
+✓ Purchase Option Sorted
+✓ payer_account_id
+✓ account_id
+✓ billing_period
+✓ pricing_term
+✓ service
+✓ region
+
+From summary_view dataset:
+✓ Cost_Amortized
+✓ Total RI_SP Savings
+✓ usage_date (MONTH)
+✓ purchase_option
+✓ Product Name Pretty
+```
+
+### **Your Current Visual Patterns (I can see):**
+- **Image 1:** X-axis: `usage_date (HOUR)`, Values: `SP Eligible Spend (Sum)`, Color: `payer_account_id`
+- **Image 2:** X-axis: `usage_date (HOUR)`, Bars: `Cost (Sum)`, Color: `Purchase Option Sorted`  
+- **Image 3:** X-axis: `usage_date (MONTH)`, Bars: `Cost_Amortized (Sum)`, Color: `purchase_option`
+
+---
+
+## **Visual 1: Cost Comparison Table (Without SP vs With SP)**
+
+### **Use Dataset:** `summary_view` (for monthly aggregation)
+
+### **Step 1: Create Table Visual**
+```
+1. Add → Visual → Table
+2. Title: "Monthly Cost Analysis: On-Demand vs Savings Plan"
+```
+
+### **Step 2: Configure Table Using Your Exact Fields**
+```
+ROWS:
+• usage_date (MONTH) - from summary_view
+
+COLUMNS (Add these calculated fields):
+
+1. "OnDemand_Equivalent_Cost" = 
+   sum({Cost_Amortized}) + sum({Total RI_SP Savings})
+
+2. "Actual_Cost_With_SP" = 
+   sum({Cost_Amortized})
+
+3. "Monthly_Savings" = 
+   sum({Total RI_SP Savings})
+
+4. "Savings_Percentage" = 
+   sum({Total RI_SP Savings}) / (sum({Cost_Amortized}) + sum({Total RI_SP Savings})) * 100
+```
+
+### **Expected Output Based on Your Data:**
+```
+Month        OnDemand_Cost    With_SP_Cost    Monthly_Savings    Savings_%
+Jun 2025     $98,586          $74,935         $23,651           24.0%
+May 2025     $95,232          $71,581         $23,651           24.8%
+Apr 2025     $92,160          $68,509         $23,651           25.7%
+```
+
+---
+
+## **Visual 2: Hours & Commitment Breakdown Table**
+
+### **Use Dataset:** `hourly_view` (for detailed breakdown)
+
+### **Step 1: Create Table Visual**
+```
+1. Add → Visual → Table  
+2. Title: "Savings Plan Commitment Details"
+```
+
+### **Step 2: Configure Using Your Exact Fields**
+```
+ROWS:
+• Create Calculated Field "Plan_Type" = 
+  if({pricing_term} = "No Upfront", "SP1_100hr", 
+     if({pricing_term} = "Partial Upfront", "SP2_28hr", "Other"))
+
+COLUMNS:
+• "Hourly_Rate" = 
+  if({Plan_Type} = "SP1_100hr", 100,
+     if({Plan_Type} = "SP2_28hr", 28, 0))
+
+• "Hours_Per_Month" = 24 * 30.44
+
+• "Monthly_Commitment" = 
+  {Hourly_Rate} * {Hours_Per_Month}
+
+• "Status" = 
+  if({Plan_Type} = "SP1_100hr", "Expires Aug 30",
+     if({Plan_Type} = "SP2_28hr", "Active until Mar 26", "N/A"))
+```
+
+---
+
+## **Visual 3: Payment Options Comparison**
+
+### **Use:** Create Static/Manual Table (since payment options are calculations)
+
+### **Step 1: Create Table**
+```
+1. Add → Visual → Table
+2. Title: "Payment Options for $170/hour Commitment"
+```
+
+### **Step 2: Create Manual Calculated Fields**
+```
+ROWS: Create text field "Payment_Option"
+Values: ["No Upfront", "Partial Upfront", "All Upfront"]
+
+COLUMNS:
+• "Effective_Hourly_Rate" = 
+  if({Payment_Option} = "No Upfront", 170,
+     if({Payment_Option} = "Partial Upfront", 165, 159))
+
+• "Monthly_Cost" = 
+  {Effective_Hourly_Rate} * 730.56
+
+• "Annual_Cost" = 
+  {Monthly_Cost} * 12
+
+• "Upfront_Payment" = 
+  if({Payment_Option} = "All Upfront", {Annual_Cost},
+     if({Payment_Option} = "Partial Upfront", {Annual_Cost} * 0.125, 0))
+```
+
+---
+
+## **Visual 4: Trend Analysis (Leveraging Your Existing Pattern)**
+
+### **Use Dataset:** `summary_view`
+
+### **Step 1: Copy Your Existing Visual 3 Structure**
+```
+1. Duplicate your "Amortised Spend" visual (Image 3)
+2. Modify title: "Cost Trend: SP vs On-Demand Equivalent"
+```
+
+### **Step 2: Modify Using Your Existing Fields**
+```
+Keep same structure as your Image 3:
+X-AXIS: usage_date (MONTH)
+BARS: Cost_Amortized (Sum) - this is your actual cost with SP
+GROUP/COLOR FOR BARS: purchase_option
+
+ADD NEW LINE:
+LINES: Add calculated field "OnDemand_Equivalent"
+Formula: sum({Cost_Amortized}) + sum({Total RI_SP Savings})
+
+This will show:
+• Orange bars: Your actual SP costs
+• Blue/Green bars: Different purchase options  
+• Line: What you would pay on On-Demand
+```
+
+---
+
+## **Visual 5: Coverage Analysis Using Your Data**
+
+### **Use Dataset:** `summary_view`
+
+### **Step 1: Create Area Chart (similar to your Image 5 pattern)**
+```
+1. Add → Visual → Area Chart
+2. Title: "Coverage Analysis Over Time"
+```
+
+### **Step 2: Configure Using Your Exact Fields**
+```
+X-AXIS: usage_date (MONTH)
+
+Y-AXIS Values (Stacked):
+• "SP_Covered_Amount" = sum({Cost_Amortized}) - sum({Total RI_SP Savings})
+• "OnDemand_Uncovered" = sum({Total RI_SP Savings})
+
+This creates stacked areas showing:
+• Bottom area: Amount covered by SP
+• Top area: Amount that would be On-Demand
+• Total height: Full On-Demand equivalent cost
+```
+
+---
+
+## **Exact Implementation Steps Using Your Interface:**
+
+### **Step 1: Field Verification (2 minutes)**
+```
+In your QuickSight, verify these fields exist in summary_view:
+✓ Cost_Amortized 
+✓ Total RI_SP Savings
+✓ usage_date
+✓ purchase_option
+
+If any are missing, use hourly_view with:
+✓ amortized_cost
+✓ savings_plan_effective_cost
+✓ usage_date
+```
+
+### **Step 2: Start with Visual 1 (5 minutes)**
+```
+1. Click "ADD" → "Visual" → "Table"
+2. Drag usage_date to Rows (set to MONTH)
+3. Create calculated fields exactly as shown above
+4. Validate numbers match your known values ($74,400 SP spend)
+```
+
+### **Step 3: Validate Against Your Known Data**
+```
+Your summary_view should show:
+• Recent months around $70-75K in Cost_Amortized
+• Total RI_SP Savings around $23-25K
+• Combined should equal ~$95-100K On-Demand equivalent
+
+If numbers don't match, we'll adjust field names.
+```
+
+---
+
+## **Questions for You:**
+
+1. **Can you confirm** that `Cost_Amortized` and `Total RI_SP Savings` exist in your summary_view?
+2. **Do the field names** I identified from your images match what you see in your field list?
+3. **Which visual** would you like to start with first?
+
+**This approach uses your exact dataset structure and field names from the images you shared.**
